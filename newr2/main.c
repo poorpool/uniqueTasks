@@ -95,6 +95,7 @@ void dividePipes() {
         if(strcmp(dividedArgv[i], "|")==0) {
             xargsCnt = 0;
             memset(argv, 0, sizeof(argv));
+            memset(buf, 0, sizeof(buf));
             argc = 0;
             if(!isFirst)
                 freopen("__tempfile1", "r", stdin);
@@ -108,10 +109,35 @@ void dividePipes() {
                     argv[j] = argv[j+1];
                 }
                 argc--;
-                while(1) {
-                    if(scanf("%s", buf[xargsCnt++])==EOF)   break;
-                    argv[argc++] = buf[xargsCnt-1];
+                // printf("%d\n")
+                
+                if(strcmp(argv[0], "-d")==0) {
+                    char div=argv[1][1], ch;//todo: 无法处理转意字符
+                    for(int j=0; j<argc-2; j++) {
+                        argv[j] = argv[j+2];
+                    }
+                    argc -= 2;
+                    if(argc==0) argv[argc++] = "echo";
+                    int xargsLen=0;
+                    while((ch=getchar())!=EOF) {
+                        if(ch==div) {
+                            argv[argc++] = buf[xargsCnt++];
+                            xargsLen = 0;
+                        }
+                        else {
+                            buf[xargsCnt][xargsLen++] = ch;
+                        }
+                    }
+                    if(xargsLen)    argv[argc++] = buf[xargsCnt++];
                 }
+                else {
+                    if(argc==0) argv[argc++] = "echo";
+                    while(1) {
+                        if(scanf("%s", buf[xargsCnt++])==EOF)   break;
+                        argv[argc++] = buf[xargsCnt-1];
+                    }
+                }
+                if(argc==0) argv[argc++] = "echo";
             }
             lst = i + 1;
             executeCommand();
@@ -132,16 +158,41 @@ void dividePipes() {
         dup2(originalOutFd, 1);
     for(; lst<dividedArgc; lst++)
         argv[argc++] = dividedArgv[lst];
+    
     if(strcmp(argv[0], "xargs")==0) {
         for(int j=0; j<argc-1; j++) {
             argv[j] = argv[j+1];
         }
         argc--;
-        
-        while(1) {
-            if(scanf("%s", buf[xargsCnt++])==EOF)   break;
-            argv[argc++] = buf[xargsCnt-1];
+        printf("%d as argc\n", argc);
+        if(strcmp(argv[0], "-d")==0) {
+            char div=argv[1][1], ch;//todo: 无法处理转意字符
+            int xargsLen=0;
+            for(int j=0; j<argc-2; j++) {
+                argv[j] = argv[j+2];
+            }
+            argc -= 2;
+            if(argc==0) argv[argc++] = "echo";
+            while((ch=getchar())!=EOF) {
+                if(ch==div) {
+                    argv[argc++] = buf[xargsCnt++];
+                    xargsLen = 0;
+                }
+                else {
+                    buf[xargsCnt][xargsLen++] = ch;
+                }
+            }
+            if(xargsLen)    argv[argc++] = buf[xargsCnt++];
         }
+        else {
+            if(argc==0) argv[argc++] = "echo";
+            while(1) {
+                if(scanf("%s", buf[xargsCnt++])==EOF)   break;
+                argv[argc++] = buf[xargsCnt-1];
+            }
+        }
+        
+        
     }
     lst++;
     executeCommand();
