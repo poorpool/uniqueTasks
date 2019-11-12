@@ -49,6 +49,10 @@ void shellKill() {
     }
 }
 
+void shellExport() {//simple version
+    freopen("paths", "a", stdout);
+    for(int i=1; i<argc; i++)   printf("%s\n", argv[i]);
+}
 void executeCommand() {
     if(argc<1)  return ;
     char buf[1024];
@@ -62,6 +66,7 @@ void executeCommand() {
     else if(strcmp(argv[0], "echo")==0) shellEcho();
     else if(strcmp(argv[0], "cd")==0)   shellCd();
     else if(strcmp(argv[0], "kill")==0) shellKill();
+    else if(strcmp(argv[0], "export")==0) shellExport();
     else {
         FILE *fl=fopen("paths", "r");
         while(fgets(buf, 1024, fl)!=NULL) {
