@@ -42,6 +42,13 @@ void shellCd() {
     if(val==-1) printf("Error in cd.\n");
 }
 
+void shellKill() {
+    for(int i=1; i<argc; i++) {
+        int pid=atoi(argv[i]);
+        if(pid!=0)  kill(pid, SIGTERM);
+    }
+}
+
 void executeCommand() {
     if(argc<1)  return ;
     char buf[1024];
@@ -54,6 +61,7 @@ void executeCommand() {
     else if(strcmp(argv[0], "pwd")==0) shellPwd();
     else if(strcmp(argv[0], "echo")==0) shellEcho();
     else if(strcmp(argv[0], "cd")==0)   shellCd();
+    else if(strcmp(argv[0], "kill")==0) shellKill();
     else {
         FILE *fl=fopen("paths", "r");
         while(fgets(buf, 1024, fl)!=NULL) {
@@ -243,13 +251,13 @@ void divideRedirects() {
 
 
 int main() {
-    int i, len;
     signal(SIGINT, sigintHandler);
     mainPid = getpid();
     while(1) {
         char *buf=readline("\e[35;1mpoorpool @ localhost $ \e[0m");
+        if(buf==NULL) break;
         divideCommands(buf);
-        if(dividedArgc==0) continue;
+        if(dividedArgc==0)  continue;
         originalInFd=dup(0);
         originalOutFd=dup(1);
         divideRedirects();
