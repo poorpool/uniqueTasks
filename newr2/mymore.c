@@ -7,11 +7,13 @@
 #include <sys/ioctl.h>
 
 int height, width, fd;
+struct termios oriTs;
 
 
 void termInit() {//获得终端长宽，设置字符回显
     struct winsize *ws=(struct winsize *)malloc(sizeof(struct winsize));
     struct termios ts;
+    tcgetattr(0, &oriTs);
     memset(ws, 0, sizeof(struct winsize));
     ioctl(0, TIOCGWINSZ, ws);
     height = ws->ws_row;
@@ -24,6 +26,10 @@ void termInit() {//获得终端长宽，设置字符回显
     tcsetattr(0, TCSAFLUSH, &ts);
 }
 
+void termBack() {
+    tcsetattr(0, TCSAFLUSH, &oriTs);
+}
+
 void seeMore() {
     char buf[64];
     for(int i=1; i<height; i++) {
@@ -34,6 +40,7 @@ void seeMore() {
                 int rd=read(fd, buf, 1);
                 if(rd==0) {
                     close(fd);
+                    termBack();
                     exit(0);
                 }
                 if(buf[0]=='\n')    isLineEnd = 1;
@@ -45,15 +52,16 @@ void seeMore() {
         }
         printf("\n");
     }
+    printf("\033[7mmore?>\033[m");
 }
 
 void moveOffset() {
-    int lineNumber=0, lineChar=0;
+    int lineNumber=0;
     lseek(fd, -1, SEEK_CUR);
     char buf[64];
     while(lineNumber<height) {
         
-        int rd=read(fd, buf, 1);printf("Fuckyou %c\n", buf[0]);
+        read(fd, buf, 1);
         if(buf[0]=='\n') {
             lineNumber++;
             if(lineNumber==height)    break;
@@ -73,12 +81,12 @@ void seeLess() {
 
 int main(int argc, char **argv) {
     termInit();
-    printf("%d %d\n", width, height);
     fd = open(argv[1], O_RDONLY);
     if(fd<0) {
         printf("ERROR in %s\n", argv[1]);
         return 0;
     }
+    seeMore();
     char ch;
     while((ch=getc(stdin))!=EOF) {
         if(ch=='q')   break;
@@ -86,5 +94,6 @@ int main(int argc, char **argv) {
         else if(ch=='b')    seeLess();
     }
     close(fd);
+    termBack();
     return 0;
 }
