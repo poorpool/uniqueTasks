@@ -49,9 +49,12 @@ void shellKill() {
     }
 }
 
-void shellExport() {//simple version
-    freopen("paths", "a", stdout);
-    for(int i=1; i<argc; i++)   printf("%s\n", argv[i]);
+void shellExport() {
+    if(argv!=2) return ;
+    char *begin1=argv[1], *begin2=argv[1];
+    while(*begin2!='=') begin2++;
+    *begin2 = '\0';
+    setenv(begin1, begin2, 1);
 }
 void executeCommand() {
     if(argc<1)  return ;
