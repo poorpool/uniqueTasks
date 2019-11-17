@@ -50,7 +50,7 @@ void shellKill() {
 }
 
 void shellExport() {
-    if(argv!=2) return ;
+    if(argc!=2) return ;
     char *begin1=argv[1], *begin2=argv[1];
     while(*begin2!='=') begin2++;
     *begin2 = '\0';
@@ -71,7 +71,7 @@ void executeCommand() {
     else if(strcmp(argv[0], "kill")==0) shellKill();
     else if(strcmp(argv[0], "export")==0) shellExport();
     else {
-        FILE *fl=fopen("paths", "r");
+        FILE *fl=fopen("/home/poorpool/文档/uniq/newr2/paths", "r");
         while(fgets(buf, 1024, fl)!=NULL) {
             if(buf[strlen(buf)-1]=='\n')    buf[strlen(buf)-1] = '\0';            
             if(buf[strlen(buf)-1]!='/') {
@@ -180,7 +180,6 @@ void dividePipes() {
             argv[j] = argv[j+1];
         }
         argc--;
-        printf("%d as argc\n", argc);
         if(strcmp(argv[0], "-d")==0) {
             char div=argv[1][1], ch;//todo: 无法处理转意字符
             int xargsLen=0;
