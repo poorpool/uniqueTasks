@@ -75,7 +75,19 @@ networks:
         driver: bridge
     HUST-SUBNET-SERVER:
         driver: bridge
+        ipam:
+            config:
+            - subnet: 202.114.10.0/24
+              gateway: 202.114.10.1
     HUST-SUBNET-USER:
         driver: bridge
+        ipam:
+            config:
+            - subnet: 202.114.12.0/24
+              gateway: 202.114.12.1
     HUST-SUBNET-USER-LAN:
         driver: bridge
+        ipam:
+            config:
+            - subnet: 10.1.1.0/24
+              gateway: 10.1.1.1
